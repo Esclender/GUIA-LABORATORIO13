@@ -1,51 +1,76 @@
-import mongodb from "mongodb"
+import mongodb from "mongodb";
 const { MongoClient, ServerApiVersion } = mongodb;
 
-const uri = "mongodb+srv://e00181703:zGju3VAVTcVj8ALA@cluster0.xzeljne.mongodb.net/?retryWrites=true&w=majority";
+const uri =
+  "mongodb+srv://e00181703:zGju3VAVTcVj8ALA@cluster0.xzeljne.mongodb.net/?retryWrites=true&w=majority";
 
-const client = new MongoClient(uri,  {
-        serverApi: {
-            version: ServerApiVersion.v1,
-            strict: true,
-            deprecationErrors: true,
-        }
-    }
-)
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
 
-async function obtenerPokemones(clientDB){
+async function obtenerPokemones(clientDB) {
   console.log("Mostrando datos....");
-  try{
+  try {
     const db = clientDB.db("guiaLab");
     const coll = db.collection("pokemons");
     const result = await coll.find({}).toArray();
-    let pokemons = []
+    let pokemons = [];
 
-    return new Promise((res, rej) =>{
-      result.forEach(element => {
-        pokemons.push(element)
-      })
-      res(console.log(result))
-    })
-
-  }catch(err){
-    console.log(err)
+    return new Promise((res, rej) => {
+      result.forEach((element) => {
+        pokemons.push(element);
+      });
+      res(console.log(result));
+    });
+  } catch (err) {
+    console.log(err);
   }
 }
 
-async function crearPokemon(clientDB, info){
-  console.log("Guardando info...")
-  console.log(info)
+async function crearPokemon(clientDB, info) {
+  console.log("Guardando info...");
+  console.log(info);
 
-  try{
+  try {
     const db = clientDB.db("guiaLab");
     const coll = db.collection("pokemons");
     await coll.insertOne(info);
 
-    console.log("Info Guardada!")
+    console.log("Info Guardada!");
 
-    return info._id
-  }catch(err){
-    console.log(err)
+    return info._id;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function updatePokemon(clientDB, id, info) {
+  console.log("Actualizando info...");
+  console.log(info);
+
+  try {
+    const db = clientDB.db("guiaLab");
+    const coll = db.collection("pokemons");
+
+    const filter = { _id: id };
+    const updateDoc = {
+      $set: {
+        ...info,
+      },
+    };
+
+    const result = await coll.updateOne(filter, updateDoc);
+    console.log(
+      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s),`
+    );
+
+    console.log("Actualizado exitosamente.");
+  } catch (err) {
+    console.log(err);
   }
 }
 
@@ -53,15 +78,15 @@ async function run() {
   try {
     await client.connect();
     await client.db("guiaLab").command({ ping: 1 });
-    return client
-  }catch(error){
-    console.log(error)
+    return client;
+  } catch (error) {
+    console.log(error);
   }
 }
 
 run()
-  .then(async res => {
+  .then(async (res) => {
     console.log("Connected");
-    return res
+    return res;
   })
-  .then(async res => await res.close())
+  .then(async (res) => await res.close());
