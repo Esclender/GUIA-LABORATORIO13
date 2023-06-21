@@ -32,6 +32,23 @@ async function obtenerPokemones(clientDB){
   }
 }
 
+async function crearPokemon(clientDB, info){
+  console.log("Guardando info...")
+  console.log(info)
+
+  try{
+    const db = clientDB.db("guiaLab");
+    const coll = db.collection("pokemons");
+    await coll.insertOne(info);
+
+    console.log("Info Guardada!")
+
+    return info._id
+  }catch(err){
+    console.log(err)
+  }
+}
+
 async function run() {
   try {
     await client.connect();
