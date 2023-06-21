@@ -12,7 +12,25 @@ const client = new MongoClient(uri,  {
     }
 )
 
+async function obtenerPokemones(clientDB){
+  console.log("Mostrando datos....");
+  try{
+    const db = clientDB.db("guiaLab");
+    const coll = db.collection("pokemons");
+    const result = await coll.find({}).toArray();
+    let pokemons = []
 
+    return new Promise((res, rej) =>{
+      result.forEach(element => {
+        pokemons.push(element)
+      })
+      res(console.log(result))
+    })
+
+  }catch(err){
+    console.log(err)
+  }
+}
 
 async function run() {
   try {
