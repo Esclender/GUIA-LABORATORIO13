@@ -21,10 +21,10 @@ async function obtenerPokemones(clientDB) {
     let pokemons = [];
 
     return new Promise((res, rej) => {
-      result.forEach((element) => {
-        pokemons.push(element);
-      });
-      res(console.log(result));
+      for (let i = 100; i < result.length; i++) {
+        pokemons.push(result[i])
+      }
+      res(console.log(pokemons))
     });
   } catch (err) {
     console.log(err);
@@ -74,6 +74,27 @@ async function updatePokemon(clientDB, id, info) {
   }
 }
 
+async function deletePokemon(clientDB, id){
+  console.log("Borrando info...")
+
+  try{
+    const db = clientDB.db("guiaLab");
+    const coll = db.collection("pokemons");
+    
+    const filter = { _id:id };
+    const result = await coll.deleteOne(filter)
+
+    if (result.deletedCount === 1) {
+      console.log("Successfully deleted one document.");
+    } else {
+      console.log("No documents matched the query. Deleted 0 documents.");
+    }
+
+  }catch(err){
+    console.log(err)
+  }
+}
+
 async function run() {
   try {
     await client.connect();
@@ -86,7 +107,13 @@ async function run() {
 
 run()
   .then(async (res) => {
-    console.log("Connected");
-    return res;
+    await obtenerPokemones(res)
+    const updateId = await crearPokemon(res, {name:"Pickachu"})
+    await obtenerPokemones(res)
+    await updatePokemon(res,updateId,{name:"Pickachu 4"})
+    await obtenerPokemones(res)
+    await deletePokemon(res,updateId)
+    await obtenerPokemones(res)
+    return res
   })
-  .then(async (res) => await res.close());
+  .then(async res => await res.close())
