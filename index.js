@@ -1,5 +1,6 @@
 import mongodb from "mongodb";
 const { MongoClient, ServerApiVersion } = mongodb;
+import fs from "fs"
 
 const uri =
   "mongodb+srv://e00181703:zGju3VAVTcVj8ALA@cluster0.xzeljne.mongodb.net/?retryWrites=true&w=majority";
@@ -21,10 +22,11 @@ async function obtenerPokemones(clientDB) {
     let pokemons = [];
 
     return new Promise((res, rej) => {
-      for (let i = 100; i < result.length; i++) {
+      for (let i = 0; i < result.length; i++) {
         pokemons.push(result[i])
       }
-      res(console.log(pokemons))
+      console.log(pokemons)
+      res(pokemons)
     });
   } catch (err) {
     console.log(err);
@@ -95,6 +97,15 @@ async function deletePokemon(clientDB, id){
   }
 }
 
+async function exportCollection(data){
+  try {
+    fs.writeFileSync('POKEMONS.json', JSON.stringify(data));
+    console.log('Done writing to file.');
+  }catch(err) {
+    console.log('Error writing to file', err)
+  }
+}
+
 async function run() {
   try {
     await client.connect();
@@ -107,13 +118,12 @@ async function run() {
 
 run()
   .then(async (res) => {
-    await obtenerPokemones(res)
+    const collData = await obtenerPokemones(res)
     const updateId = await crearPokemon(res, {name:"Pickachu"})
-    await obtenerPokemones(res)
     await updatePokemon(res,updateId,{name:"Pickachu 4"})
-    await obtenerPokemones(res)
     await deletePokemon(res,updateId)
-    await obtenerPokemones(res)
+    await exportCollection(collData)
+    console.log(collData)
     return res
   })
   .then(async res => await res.close())
